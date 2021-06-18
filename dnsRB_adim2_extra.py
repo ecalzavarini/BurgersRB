@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import numpy as np
 from math import *
+import os 
+from shutil import copyfile
 ##################################################################
 # read parameters from file
 with open('param.in', 'r') as f:
@@ -42,9 +44,13 @@ print("used dt = ", dt)
 
 
 #Prepare some file names
+dirname='RUN_Ra'+str(Ra)+'_Pr'+str(Pr)+'_N'+str(N)+'_dt'+str(dt)+'/'
+print(dirname)
+os.makedirs(dirname)
+copyfile("param.in",dirname+"param.in")
 fname='_Ra'+str(Ra)+'_Pr'+str(Pr)+'_N'+str(N)+'_dt'+str(dt)+'.dat'
 
-with open('param'+fname, 'a+') as f:    
+with open(dirname+'param'+fname, 'a+') as f:    
     print('Ra',str(Ra),file=f)
     print('Pr',str(Pr),file=f)
     print('N',str(N),file=f)
@@ -178,7 +184,7 @@ def write_field(it):
     global fname
     wr = np.fft.irfft(wc)
     tr = np.fft.irfft(tc)
-    with open('field'+fname, 'a+') as f:
+    with open(dirname+'field'+fname, 'a+') as f:
         print("# it = ",it,file=f)
         for i in range(N):
             print(dx*i,wr[i],tr[i],wr[i]*tr[i],file=f)
@@ -188,7 +194,7 @@ def write_averages(it):
     global N,dt
     global wr,tr
     global fname
-    with open('averages'+fname, 'a+') as f:    
+    with open(dirname+'averages'+fname, 'a+') as f:    
         print(it*dt,np.sum(wr)/N,np.sum(np.abs(wr))/N,np.sum(tr)/N,np.sum(np.abs(tr))/N,np.sum(wr*tr)/N,file=f)
     f.closed
 ###############################################################
@@ -196,7 +202,7 @@ def write_final_averages():
     global N,dt,Ra,Pr
     global wr,tr
     global fname
-    with open('final_averages'+fname, 'w+') as f:    
+    with open(dirname+'final_averages'+fname, 'w+') as f:    
         print(Ra,Pr,np.sum(wr)/N,np.sum(np.abs(wr))/N,np.sum(tr)/N,np.sum(np.abs(tr))/N,np.sum(wr*tr)/N,file=f)
     f.closed
 ###############################################################
@@ -206,7 +212,7 @@ def write_final_field(it):
     global fname
     wr = np.fft.irfft(wc)
     tr = np.fft.irfft(tc)
-    with open('final_field'+fname, 'w+') as f:
+    with open(dirname+'final_field'+fname, 'w+') as f:
         print("# it = ",it,file=f)
         wr_z= np.gradient(wr)*N
         wr_zz = np.gradient(wr_z)*N
@@ -218,7 +224,7 @@ def write_spectra(it):
     global N
     global wc,tc
     global fname
-    with open('spectra'+fname, 'a+') as f:
+    with open(dirname+'spectra'+fname, 'a+') as f:
         print("# it = ",it,file=f)
         for i in range(NC):
             print(np.abs(k[i]), (np.abs(wc[i]))**2., (np.abs(tc[i]))**2., wc.real[i], wc.imag[i], tc.real[i], tc.imag[i], file=f)
@@ -236,11 +242,11 @@ def initialize_fields():
         tr[i]=(2.*np.random.rand()-1.)*0.00001
     wc=np.fft.rfft(wr)
     tc=np.fft.rfft(tr)
-    with open('initial.dat', 'w') as f:    
+    with open(dirname+'initial.dat', 'w') as f:    
         for i in range(N):
             print(dx*i,wr[i],tr[i],file=f)            
     f.closed
-    with open('initial-complex.dat', 'w') as f:    
+    with open(dirname+'initial-complex.dat', 'w') as f:    
         for i in range(NC):
             print(k[i],wc[i].real,wc[i].imag,tc[i].real,tc[i].imag,file=f)            
     f.closed     
