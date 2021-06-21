@@ -251,6 +251,19 @@ def initialize_fields():
             print(k[i],wc[i].real,wc[i].imag,tc[i].real,tc[i].imag,file=f)            
     f.closed     
 ###############################################################  
+# check convergence (flow steadiness) for stopping the simulation
+tot_ene_old = 0
+def check_steady():
+    global wr
+    global tot_ene_old
+    tot_ene_now = np.sum(np.abs(wr))
+    if np.abs(tot_ene_now - tot_ene_old)<1.e-14:
+        tot_ene_old = tot_ene_now
+        return 1
+    else:
+        tot_ene_old = tot_ene_now
+        return 0
+############################################################### 
 # MAIN 
 ###############################################################
 # Here the simulation starts
@@ -260,7 +273,9 @@ dump_it = int(dump_time/dt)
 print(dump_it)
 
 # main loop on time
-for it in range(0, int(end_t/dt)):
+#for it in range(0, int(end_t/dt)):
+it = val = 0
+while it < int(end_t/dt) and val == 0:
 
 #compute real velocity field    
     if it%dump_it == 0:
@@ -280,6 +295,13 @@ for it in range(0, int(end_t/dt)):
 #diagnostic and output
     if it%10 == 0:
         print("it = ",it)
+#check convergence
+    if it%dump_it == 0:
+        val=check_steady()
+    if val == 1:
+        print("run converged at it =",it)
+    it = it +1
+# final writes
 write_final_averages()
 write_final_field(it)
 ################################################################
