@@ -44,9 +44,14 @@ print("used dt = ", dt)
 
 
 #Prepare some file names
-dirname='RUN_Ra'+str(Ra)+'_Pr'+str(Pr)+'_N'+str(N)+'_dt'+str(dt)+'/'
+runnum=1
+dirname='RUN'+str(runnum)+'_Ra'+str(Ra)+'_Pr'+str(Pr)+'_N'+str(N)+'_dt'+str(dt)+'/'
+while(os.path.exists(dirname)):
+    runnum=runnum + 1
+    dirname='RUN'+str(runnum)+'_Ra'+str(Ra)+'_Pr'+str(Pr)+'_N'+str(N)+'_dt'+str(dt)+'/'
 print(dirname)
 os.makedirs(dirname)
+
 copyfile("param.in",dirname+"param.in")
 fname='_Ra'+str(Ra)+'_Pr'+str(Pr)+'_N'+str(N)+'_dt'+str(dt)+'.dat'
 
